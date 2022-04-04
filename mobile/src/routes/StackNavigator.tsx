@@ -9,6 +9,7 @@ import Home from '../pages/Home';
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
+  Register: undefined;
 }
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();

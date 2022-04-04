@@ -5,10 +5,10 @@ import { Text, TouchableOpacity } from 'react-native';
 import { RootStackParamList } from '../../routes/StackNavigator';
 import { Container } from './styles';
 
-type homeScreenProp = StackNavigationProp<RootStackParamList, 'Home'>;
+type ScreenProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
 export default function Home() {
-  const { navigate } = useNavigation<homeScreenProp>();
+  const { navigate } = useNavigation<ScreenProp>();
 
   return (
     <Container>
