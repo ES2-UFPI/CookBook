@@ -1,27 +1,29 @@
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useState } from 'react';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import Button from '../../components/Button';
 import HeaderPreLogin from '../../components/HeaderPreLogin';
 import Input from '../../components/Input';
 import { RootStackParamList } from '../../routes/StackNavigator';
-import { ButtonContainer, Container, InputContainer, Logo, NavigateToRegisterText, Title } from './styles';
+import { ButtonContainer, Container, InputContainer, Logo, NavigateToLoginText, Title } from './styles';
 
-type ScreenProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type ScreenProp = StackNavigationProp<RootStackParamList, 'Register'>;
 
-export default function Login() {
+export default function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
 
   const { navigate } = useNavigation<ScreenProp>();
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     navigate('Home');
   }
 
-  const handleNavigateToRegister = () => {
-    navigate('Register');
+  const handleNavigateToLogin = () => {
+    navigate('Login');
   }
 
   return (
@@ -29,8 +31,14 @@ export default function Login() {
       <HeaderPreLogin />
       <Logo> CookBook </Logo>
 
-      <Title> Login </Title>
+      <Title> Registro </Title>
       <InputContainer>
+        <Input 
+          value={name} 
+          setValue={(e) => setName(e)} 
+          placeholder='Nome' 
+        />
+        
         <Input 
           value={email} 
           setValue={(e) => setEmail(e)} 
@@ -43,19 +51,26 @@ export default function Login() {
           placeholder='Senha' 
           secureTextEntry
         />
+
+        <Input 
+          value={passwordConfirm} 
+          setValue={(e) => setPasswordConfirm(e)} 
+          placeholder='Confirme a senha' 
+          secureTextEntry
+        />
       </InputContainer>
 
       <ButtonContainer>
-        <Button onPress={handleLogin} title='Login' />
+        <Button onPress={handleRegister} title='Registrar' />
         
         <TouchableOpacity 
           activeOpacity={0.7} 
-          style={{marginTop:10}} 
-          onPress={handleNavigateToRegister}
+          style={{marginTop:10}}
+          onPress={handleNavigateToLogin}
         >
-          <NavigateToRegisterText>
-            Ainda não tem login? Crie uma conta.
-          </NavigateToRegisterText>
+          <NavigateToLoginText>
+            Já tem uma conta? Faça o login.
+          </NavigateToLoginText>
         </TouchableOpacity>
       </ButtonContainer>
     </Container>

@@ -20,14 +20,14 @@ export const Title = styled.Text`
   color: ${({ theme }) => theme.colors.text};
   font-size: 20px;
   margin: 10px 23px;
-  margin-top: 30%;
+  margin-top: 10%;
 `;
 
 export const InputContainer = styled.View`
   width: 100%;
   padding: 0 23px;
   justify-content: space-between;
-  height: 100px;
+  height: 200px;
 `
 
 export const ButtonContainer = styled.View`
@@ -38,7 +38,7 @@ export const ButtonContainer = styled.View`
   align-items: center;
 `
 
-export const NavigateToRegisterText = styled.Text`
+export const NavigateToLoginText = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   color: ${({ theme }) => theme.colors.text};
   font-size: 11px;

@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Login from '../pages/Login';
 import Home from '../pages/Home';
+import Register from '../pages/Register';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -32,6 +33,7 @@ function AppStack() {
       <Navigator screenOptions={{ headerShown: false }}>
         <Screen name="Home" component={Home} />
         <Screen name="Login" component={Login} />
+        <Screen name="Register" component={Register} />
       </Navigator>
     </NavigationContainer> 
   );
