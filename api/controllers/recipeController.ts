@@ -80,12 +80,16 @@ const deleteRecipe = catchAsync(async (req: Request, res: Response, next: NextFu
 })
 
 const updateRating = catchAsync(async (req: createRecipeProps, res: Response, next: NextFunction) => {
-  const recipe = await Recipe.findByIdAndUpdate(req.params.id, {
-    '$push': { 'ratings': { authorId: req?.user._id, stars: req.body.stars } }
+  const recipe = await Recipe.findOneAndUpdate(
+  { 
+    _id: req.params.id,  
+    ratings: { $elemMatch: { authorId: req.user._id }} 
   }, 
   {
-    new: true,
-    runValidators: true,
+    $set: { 'ratings.$.stars': req.body.stars }
+  }, 
+  {
+    'new': true, 'safe': true, 'upsert': true
   });
 
   if(!recipe){
