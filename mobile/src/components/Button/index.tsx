@@ -1,17 +1,22 @@
 import React, { ReactNode } from 'react';
-import { TouchableOpacityProps } from 'react-native';
+import { ActivityIndicator, TouchableOpacityProps } from 'react-native';
 import styled from 'styled-components/native';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
+  isLoading?: boolean;
 } 
 
-const Button = ({ title, ...rest }: ButtonProps) => {
+const Button = ({ title, isLoading, ...rest }: ButtonProps) => {
   return (
-    <Container activeOpacity={0.7} {...rest} >
-      <Title>
-        {title}
-      </Title>
+    <Container activeOpacity={0.7} {...rest} disabled={isLoading} >
+      {isLoading ? (
+        <ActivityIndicator size={24} color="#fff" />
+      ) : (
+        <Title>
+          {title}
+        </Title>
+      )}
     </Container>
   );
 }
