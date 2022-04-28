@@ -4,12 +4,12 @@
   "main": "index.js",
   "author": "G2",
   "license": "MIT",
+  "homepage": "https://pedronetopgn.github.io/cookbook",
   "scripts": {
     "dev": "ts-node-dev --transpile-only --ignore-watch node_modules src/server.ts",
     "dev:prod": "set NODE_ENV=production&&ts-node-dev --transpile-only --ignore-watch node_modules src/server.ts",
     "start": "ts-node src/server.ts"
   },
-  "homepage": "https://pedronetopgn.github.io/cookbook",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
