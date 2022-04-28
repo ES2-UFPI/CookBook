@@ -13,6 +13,9 @@ import {
   Poppins_500Medium, 
   Poppins_700Bold 
 } from '@expo-google-fonts/poppins'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from './src/services/api';
+import { useEffect } from 'react';
 
 export default function App() {
 
@@ -28,6 +31,23 @@ export default function App() {
   if (!fontsLoaded) {
     return <AppLoading />;
   }
+
+  // const getToken = async () => {
+  //   try {
+  //     const token = await AsyncStorage.getItem('@cookbook:token');
+  //     if (token) {
+  //       api.defaults.headers = {
+  //         'Authorization': `Bearer ${token}`
+  //       } as any;
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   getToken();
+  // }, [])
 
   return (
     <ThemeProvider theme={theme}>
