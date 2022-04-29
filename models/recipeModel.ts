@@ -14,8 +14,7 @@ const recipeSchema = new Schema(({
       trim: true,
       maxlength: 80
     },
-    amount: Number,
-    unity: String
+    amount: String
   }],
 
   prepMethod: {
@@ -61,6 +60,8 @@ const recipeSchema = new Schema(({
       default: 0
     }
   }],
+
+  tags: [ String ],
   
   createdAt: {
     type: Date,
