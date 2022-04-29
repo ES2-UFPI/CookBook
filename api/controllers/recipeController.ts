@@ -5,7 +5,21 @@ import AppError from "../utils/appError";
 
 const getAllRecipes = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const recipe = await Recipe.find().select("-__v");
+    const tags= req.query.tags || "";
+    const ingredients = req.query.ingredients || "";
+    const op = tags == "" || ingredients == "" ? "$or" : "$and";
+    const recipe = await Recipe.find({
+      [op]: [
+        { tags: { $all: tags.toString().toUpperCase().split(",") } },
+        {
+          ingredients: {
+            $elemMatch: {
+              name: ingredients.toString().split(","),
+            },
+          },
+        },
+      ],
+    }).select("-__v");
 
     return res.status(200).json({
       status: "success",
@@ -47,6 +61,7 @@ const createRecipe = catchAsync(
       imgURL: req.body.imgURL,
       comments: req.body.comments,
       ratings: req.body.ratings,
+      tags: req.body.tags.map((tag: String) => tag.toUpperCase()),
       createdAt: req.body.createdAt,
     });
 
@@ -103,7 +118,7 @@ const updateRating = catchAsync(
           ratings: { $elemMatch: { authorId: req.user._id } },
         },
         {
-          $set: { 'ratings.$.stars': req.body.stars }
+          $set: { "ratings.$.stars": req.body.stars },
         },
         {
           upsert: true,
