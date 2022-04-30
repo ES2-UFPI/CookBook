@@ -29,7 +29,7 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
     status: 'success',
     token, 
     _id: user._id,
-    specialistName: user.name,
+    name: user.name,
   })
 
 })
