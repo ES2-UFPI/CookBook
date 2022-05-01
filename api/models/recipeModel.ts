@@ -73,14 +73,10 @@ const recipeSchema = new Schema(({
   toObject: { virtuals: true }
 });
 
-recipeSchema.virtual('amountRatings').get( function () {
-  return this.ratings.length;
-})
-
 recipeSchema.virtual('averageRating').get( function () {
-  return (this.ratings.reduce((acc, it) => { 
+  return (this.ratings?.reduce?.((acc, it) => { 
     return it.stars + acc
-  }, 0) / this.ratings.length).toFixed(2);  
+  }, 0) / this.ratings?.length).toFixed(2) || 0;  
 })
 
 const Recipe = model('recipe', recipeSchema);
