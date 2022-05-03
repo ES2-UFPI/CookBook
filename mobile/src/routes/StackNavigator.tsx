@@ -6,11 +6,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Login from '../pages/Login';
 import Home from '../pages/Home';
 import Register from '../pages/Register';
+import Recipe from '../pages/Recipe';
 
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
   Register: undefined;
+  Recipe: {
+    id: string;
+  }
 }
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -34,6 +38,7 @@ function AppStack() {
         <Screen name="Home" component={Home} />
         <Screen name="Login" component={Login} />
         <Screen name="Register" component={Register} />
+        <Screen name="Recipe" component={Recipe} />
       </Navigator>
     </NavigationContainer> 
   );
