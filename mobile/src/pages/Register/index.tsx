@@ -38,8 +38,6 @@ export default function Register() {
         passwordConfirm
       );
 
-      console.log(data);
-
       Platform.OS == "android"
         ? ToastAndroid.show(`Bem vindo, ${data.name}!`, 5)
         : Alert.alert(`Bem vindo, ${data.name}!`);
