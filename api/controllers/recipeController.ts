@@ -88,12 +88,37 @@ const getAllRecipes = catchAsync(
     });
   }
 );
+// "name" : {$regex : String(name), name: /^bar$/i }
+const getRecipesByName = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const name = req.params.name;
+
+    const recipes = await Recipe.find({
+      name: (/^bar$/i.test(name) ? name : new RegExp(name, "i"))
+    })
+      .select("-__v")
+      .select("-prepMethod")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    if (!recipes) {
+      return next(new AppError("Can't find recipe with that id", 404));
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: recipes,
+    });
+  }
+);
 
 const getRecipe = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const recipe = await Recipe.findById(req.params.id).select("-__v");
 
-    if (!Recipe) {
+    if (!recipe) {
       return next(new AppError("Can't find recipe with that id", 404));
     }
 
@@ -214,4 +239,5 @@ export {
   updateRecipe,
   deleteRecipe,
   updateRating,
+  getRecipesByName,
 };
