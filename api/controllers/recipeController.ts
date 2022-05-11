@@ -59,25 +59,29 @@ const getAllRecipes = catchAsync(
             r.ingredients?.filter((it) => {
               if (it.name.split(" ").length > 1) {
                 const res = it.name.split(" ").filter((yt) => {
-                  if (yt.length < 2) return false
-                  const bestMatch = getBestMatchFromArray(
-                    ingredients.toString().split(",").map(xt => xt.toLowerCase()),
-                    it.name.toLowerCase()
-                    );
+                  if (yt.length < 2) return false;
 
-                    if(it.name == 'Maçãs Braeburn') console.log(it.name, bestMatch, yt);
-                    return bestMatch.score > 0.5;
-                  });
-                  if(it.name == 'Maçãs Braeburn') console.log(it.name, res);
-                  
-                  if (res.length > 0) return true;
-                }
+                  const bestMatch = getBestMatchFromArray(
+                    ingredients
+                      .toString()
+                      .split(",")
+                      .map((xt) => xt.toLowerCase()),
+                    yt.toLowerCase()
+                  );
+                  return bestMatch.score > 0.5;
+                });
+
+                if (res.length > 0) return true;
+              }
               const res = getBestMatchFromArray(
-                ingredients.toString().split(",").map(xt => xt.toLowerCase()),
+                ingredients
+                  .toString()
+                  .split(",")
+                  .map((xt) => xt.toLowerCase()),
                 it.name.toLowerCase()
               );
               return res.score > 0.5;
-            }).length / ingredients.toString().split(",").length
+            }).length / r.ingredients.length
           ).toFixed(2),
         };
       }),
