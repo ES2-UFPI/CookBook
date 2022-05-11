@@ -2,6 +2,24 @@ import Recipe from "../models/recipeModel";
 import { NextFunction, Request, Response } from "express";
 import catchAsync from "../utils/CatchAsync";
 import AppError from "../utils/appError";
+import { compareTwoStrings } from "string-similarity";
+
+const getBestMatchFromArray = (array: string[], string: string) => {
+  let bestMatch = {
+    string: "",
+    score: 0,
+  };
+  array.forEach((item) => {
+    const score = compareTwoStrings(string, item);
+    if (score > bestMatch.score) {
+      bestMatch = {
+        string: item,
+        score,
+      };
+    }
+  });
+  return bestMatch;
+};
 
 const getAllRecipes = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -27,7 +45,6 @@ const getAllRecipes = catchAsync(
       ],
     })
       .select("-__v")
-      .select("-ingredients")
       .select("-prepMethod")
       .skip((page - 1) * limit)
       .limit(limit);
@@ -35,7 +52,64 @@ const getAllRecipes = catchAsync(
     return res.status(200).json({
       status: "success",
       results: recipe.length,
-      data: recipe,
+      data: recipe.map((r) => {
+        return {
+          ...r._doc,
+          match: Number(
+            r.ingredients?.filter((it) => {
+              if (it.name.split(" ").length > 1) {
+                const res = it.name.split(" ").filter((yt) => {
+                  if (yt.length < 2) return false;
+
+                  const bestMatch = getBestMatchFromArray(
+                    ingredients
+                      .toString()
+                      .split(",")
+                      .map((xt) => xt.toLowerCase()),
+                    yt.toLowerCase()
+                  );
+                  return bestMatch.score > 0.5;
+                });
+
+                if (res.length > 0) return true;
+              }
+              const res = getBestMatchFromArray(
+                ingredients
+                  .toString()
+                  .split(",")
+                  .map((xt) => xt.toLowerCase()),
+                it.name.toLowerCase()
+              );
+              return res.score > 0.5;
+            }).length / r.ingredients.length
+          ).toFixed(2),
+        };
+      }),
+    });
+  }
+);
+// "name" : {$regex : String(name), name: /^bar$/i }
+const getRecipesByName = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const name = req.params.name;
+
+    const recipes = await Recipe.find({
+      name: (/^bar$/i.test(name) ? name : new RegExp(name, "i"))
+    })
+      .select("-__v")
+      .select("-prepMethod")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    if (!recipes) {
+      return next(new AppError("Can't find recipe with that id", 404));
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: recipes,
     });
   }
 );
@@ -44,7 +118,7 @@ const getRecipe = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const recipe = await Recipe.findById(req.params.id).select("-__v");
 
-    if (!Recipe) {
+    if (!recipe) {
       return next(new AppError("Can't find recipe with that id", 404));
     }
 
@@ -165,4 +239,5 @@ export {
   updateRecipe,
   deleteRecipe,
   updateRating,
+  getRecipesByName,
 };
