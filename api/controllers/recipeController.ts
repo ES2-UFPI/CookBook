@@ -2,6 +2,24 @@ import Recipe from "../models/recipeModel";
 import { NextFunction, Request, Response } from "express";
 import catchAsync from "../utils/CatchAsync";
 import AppError from "../utils/appError";
+import { compareTwoStrings } from "string-similarity";
+
+const getBestMatchFromArray = (array: string[], string: string) => {
+  let bestMatch = {
+    string: "",
+    score: 0,
+  };
+  array.forEach((item) => {
+    const score = compareTwoStrings(string, item);
+    if (score > bestMatch.score) {
+      bestMatch = {
+        string: item,
+        score,
+      };
+    }
+  });
+  return bestMatch;
+};
 
 const getAllRecipes = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -27,7 +45,6 @@ const getAllRecipes = catchAsync(
       ],
     })
       .select("-__v")
-      .select("-ingredients")
       .select("-prepMethod")
       .skip((page - 1) * limit)
       .limit(limit);
@@ -35,7 +52,64 @@ const getAllRecipes = catchAsync(
     return res.status(200).json({
       status: "success",
       results: recipe.length,
-      data: recipe,
+      data: recipe.map((r) => {
+        return {
+          ...r._doc,
+          match: Number(
+            r.ingredients?.filter((it) => {
+              if (it.name.split(" ").length > 1) {
+                const res = it.name.split(" ").filter((yt) => {
+                  if (yt.length < 2) return false;
+
+                  const bestMatch = getBestMatchFromArray(
+                    ingredients
+                      .toString()
+                      .split(",")
+                      .map((xt) => xt.toLowerCase()),
+                    yt.toLowerCase()
+                  );
+                  return bestMatch.score > 0.5;
+                });
+
+                if (res.length > 0) return true;
+              }
+              const res = getBestMatchFromArray(
+                ingredients
+                  .toString()
+                  .split(",")
+                  .map((xt) => xt.toLowerCase()),
+                it.name.toLowerCase()
+              );
+              return res.score > 0.5;
+            }).length / r.ingredients.length
+          ).toFixed(2),
+        };
+      }),
+    });
+  }
+);
+
+const getRecipesByName = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const name = req.params.name;
+
+    const recipes = await Recipe.find({
+      name: /^bar$/i.test(name) ? name : new RegExp(name, "i"),
+    })
+      .select("-__v")
+      .select("-prepMethod")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    if (!recipes) {
+      return next(new AppError("Can't find recipe with that name", 404));
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: recipes,
     });
   }
 );
@@ -44,7 +118,7 @@ const getRecipe = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const recipe = await Recipe.findById(req.params.id).select("-__v");
 
-    if (!Recipe) {
+    if (!recipe) {
       return next(new AppError("Can't find recipe with that id", 404));
     }
 
@@ -58,6 +132,7 @@ const getRecipe = catchAsync(
 interface createRecipeProps extends Request {
   user: {
     _id: String;
+    name: String;
   };
 }
 
@@ -121,7 +196,7 @@ const updateRating = catchAsync(
       _id: req.params.id,
       ratings: { $elemMatch: { authorId: req.user._id } },
     });
-
+    
     if (recipe) {
       recipe = await Recipe.findOneAndUpdate(
         {
@@ -130,9 +205,6 @@ const updateRating = catchAsync(
         },
         {
           $set: { "ratings.$.stars": req.body.stars },
-        },
-        {
-          upsert: true,
         }
       );
     } else {
@@ -158,6 +230,98 @@ const updateRating = catchAsync(
   }
 );
 
+const getUserRating = catchAsync(
+  async (req: createRecipeProps, res: Response, next: NextFunction) => {
+    const recipe = await Recipe.findOne({
+      _id: req.params.id,
+      ratings: { $elemMatch: { authorId: req.user._id } },
+    }).select("ratings");
+
+    if (!recipe) {
+      return next(
+        new AppError(
+          "Can't find recipe with that id or user dont have rating",
+          404
+        )
+      );
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: { stars: recipe.ratings[0].stars },
+    });
+  }
+);
+
+const getRecipesByUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const id = req.params.id;
+
+    const recipes = await Recipe.find({
+      authorId: id,
+    })
+      .select("-__v")
+      .select("-prepMethod")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    if (!recipes) {
+      return next(new AppError("Can't find user with that id", 404));
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: recipes,
+    });
+  }
+);
+
+const postUserComments = catchAsync(
+  async (req: createRecipeProps, res: Response, next: NextFunction) => {
+    const response = await Recipe.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $push: {
+          comments: {
+            author: req.user.name,
+            authorId: req.user._id,
+            message: req.body.message,
+            createdAt: Date.now(),
+          },
+        },
+      },
+      { upsert: true }
+    );
+
+    if (!response) return next(new AppError("Failed to add comment", 404));
+
+    return res.status(200).json({
+      status: "success",
+      data: response,
+    });
+  }
+);
+
+const getTopRecipes = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const recipes = await Recipe.find({})
+      .sort({ "ratings": -1 })
+      .select("-__v")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return res.status(200).json({
+      status: "success",
+      data: recipes,
+    });
+  }
+);
+
 export {
   getAllRecipes,
   getRecipe,
@@ -165,4 +329,9 @@ export {
   updateRecipe,
   deleteRecipe,
   updateRating,
+  getRecipesByName,
+  getRecipesByUser,
+  getUserRating,
+  postUserComments,
+  getTopRecipes,
 };

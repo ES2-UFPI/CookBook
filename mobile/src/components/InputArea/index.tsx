@@ -8,12 +8,16 @@ interface InputProps extends TextInputProps {
   placeholder: string;
 }
 
-const Input = ({ value, setValue, placeholder, ...rest }: InputProps) => {
+const InputArea = ({ value, setValue, placeholder, ...rest }: InputProps) => {
   return (
     <Container
       value={value}
       onChangeText={setValue}
       placeholder={placeholder}
+      multiline={true}
+      style={{
+        textAlignVertical: 'top',
+      }}
       {...rest}
     />
   );
@@ -21,11 +25,11 @@ const Input = ({ value, setValue, placeholder, ...rest }: InputProps) => {
 
 const Container = styled.TextInput`
   width: 100%;
-  height: 42px;
+  height: 142px;
   border-radius: 11px;
   background-color: ${({ theme }) => theme.colors.white};
-  padding: 0 16px;
+  padding: 10px 16px;
   font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
-export default Input;
+export default InputArea;

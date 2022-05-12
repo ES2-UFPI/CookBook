@@ -20,4 +20,24 @@ routes
   .route('/recipe/ratings/:id')
   .patch(authController.protect, recipeController.updateRating)
 
+routes
+  .route('/recipeByName/:name')
+  .get(recipeController.getRecipesByName)
+
+routes
+  .route('/recipeByUser/:id')
+  .get(recipeController.getRecipesByUser)
+
+routes
+  .route('/ratingByUser/:id')
+  .get(authController.protect, recipeController.getUserRating)
+  
+routes
+.route('/addRecipeComment/:id')
+.post(authController.protect, recipeController.postUserComments)
+
+routes
+  .route('/getTopRecipes')
+  .get(recipeController.getTopRecipes)
+
 export default routes;

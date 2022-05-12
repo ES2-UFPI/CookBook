@@ -28,26 +28,29 @@ export default function App() {
     Poppins_700Bold
   });
 
+  
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('@cookbook:token');
+      
+      if (token) {
+        console.log('test');
+        api.defaults.headers = {
+          'Authorization': `Bearer ${token}`
+        } as any;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    getToken();
+  }, [])
+
   if (!fontsLoaded) {
     return <AppLoading />;
   }
-
-  // const getToken = async () => {
-  //   try {
-  //     const token = await AsyncStorage.getItem('@cookbook:token');
-  //     if (token) {
-  //       api.defaults.headers = {
-  //         'Authorization': `Bearer ${token}`
-  //       } as any;
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   getToken();
-  // }, [])
 
   return (
     <ThemeProvider theme={theme}>
