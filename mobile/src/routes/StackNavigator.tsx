@@ -8,8 +8,11 @@ import Home from '../pages/Home';
 import Register from '../pages/Register';
 import Recipe from '../pages/Recipe';
 import Search from '../pages/Search';
+import Menu from '../pages/Menu';
+import RegisterRecipe from '../pages/RegisterRecipe';
 
 export type RootStackParamList = {
+  Menu: undefined;
   Login: undefined;
   Home: undefined;
   Register: undefined;
@@ -17,6 +20,7 @@ export type RootStackParamList = {
     id: string;
   }
   Search: undefined;
+  RegisterRecipe: undefined;
 }
 
 const { Navigator, Screen } = createStackNavigator<RootStackParamList>();
@@ -42,6 +46,8 @@ function AppStack() {
         <Screen name="Register" component={Register} />
         <Screen name="Recipe" component={Recipe} />
         <Screen name="Search" component={Search} />
+        <Screen name="RegisterRecipe" component={RegisterRecipe} />
+        <Screen name="Menu" component={Menu} />
       </Navigator>
     </NavigationContainer> 
   );
