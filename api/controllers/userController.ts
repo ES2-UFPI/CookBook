@@ -118,4 +118,32 @@ const deleteUser = catchAsync(
   }
 );
 
-export { login, getAllUsers, getUser, updateUser, createUser, deleteUser };
+const getUsersByName = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const name = req.params.name;
+
+    const users = await User.find({
+      name: /^bar$/i.test(name) ? name : new RegExp(name, "i"),
+    })
+      .select("-__v");
+
+    if (!users) {
+      return next(new AppError("Can't find user with that name", 404));
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: users,
+    });
+  }
+);
+
+export {
+  login,
+  getAllUsers,
+  getUser,
+  updateUser,
+  createUser,
+  deleteUser,
+  getUsersByName,
+};

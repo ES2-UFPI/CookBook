@@ -51,7 +51,6 @@ const recipeSchema = new Schema(
         createdAt: {
           type: Date,
           default: Date.now(),
-          select: false,
         },
       },
     ],
@@ -84,7 +83,7 @@ const recipeSchema = new Schema(
 );
 
 recipeSchema.virtual("averageRating").get(function () {
-  return (
+  return Number(
     (
       this.ratings?.reduce?.((acc, it) => {
         return it.stars + acc;
