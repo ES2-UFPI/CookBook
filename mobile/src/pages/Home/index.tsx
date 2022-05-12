@@ -1,12 +1,13 @@
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useEffect, useState } from "react";
 import CardVertical from "../../components/CardVertical";
 import Header from "../../components/Header";
 import MainCard from "../../components/MainCard";
 import { RootStackParamList } from "../../routes/StackNavigator";
-import { getRecipes } from "../../services/recipe.services";
+import { getRecipes, getTopRecipes } from "../../services/recipe.services";
 import { Carousel, CarouselTitle, Container, ContentWrapper } from "./styles";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type ScreenProp = StackNavigationProp<RootStackParamList, "Home">;
 
@@ -23,15 +24,28 @@ type RecipeProps = {
 };
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { navigate } = useNavigation<ScreenProp>();
   const [recipes1, setRecipes1] = useState<RecipeProps[]>([]);
   const [recipes2, setRecipes2] = useState<RecipeProps[]>([]);
   const [recipes3, setRecipes3] = useState<RecipeProps[]>([]);
   const [recipes4, setRecipes4] = useState<RecipeProps[]>([]);
 
+  useFocusEffect(() => {
+    setIsAuthenticated(false)
+    const getToken = async () => {
+      return await AsyncStorage.getItem("@cookbook:token") || null;
+    }
+    getToken().then(token => {
+      if (token) {
+        setIsAuthenticated(true);
+      }
+    })
+  });
+
   const fetchRecipes = async () => {
     try {
-      const { data } = await getRecipes(1);
+      const { data } = await getTopRecipes(1);
       setRecipes1(data.data);
     } catch (e) {
       console.log(e);
@@ -64,7 +78,7 @@ export default function Home() {
     <Container>
       <ContentWrapper>
         <Header
-          onPressLeft={() => navigate("Login")}
+          onPressLeft={() => isAuthenticated ? navigate("Menu") : navigate("Login")}
           onPressRight={() => navigate("Search")}
         />
 
@@ -80,7 +94,7 @@ export default function Home() {
 
         {recipes1.length > 0 && (
           <>
-            <CarouselTitle>Receitas</CarouselTitle>
+            <CarouselTitle>Receitas relevantes</CarouselTitle>
 
             <Carousel>
               {recipes1.map((recipe) => (

@@ -32,7 +32,9 @@ export default function App() {
   const getToken = async () => {
     try {
       const token = await AsyncStorage.getItem('@cookbook:token');
+      
       if (token) {
+        console.log('test');
         api.defaults.headers = {
           'Authorization': `Bearer ${token}`
         } as any;

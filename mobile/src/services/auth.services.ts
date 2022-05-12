@@ -12,7 +12,7 @@ export const login = async (email: string, password: string) => {
     password,
   });
 
-  AsyncStorage.setItem("token", data.token);
+  AsyncStorage.setItem("@cookbook:token", data.token);
   api.defaults.headers = {
     Authorization: `Bearer ${data.token}`,
   } as CommonHeaderProperties;
@@ -21,7 +21,7 @@ export const login = async (email: string, password: string) => {
 };
 
 export const logOff = async () => {
-  AsyncStorage.removeItem("token");
+  AsyncStorage.removeItem("@cookbook:token");
   api.defaults.headers = {
     Authorization: "",
   } as CommonHeaderProperties;

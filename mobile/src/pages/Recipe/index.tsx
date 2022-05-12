@@ -14,7 +14,7 @@ import Header from "../../components/Header";
 import Input from "../../components/Input";
 import InputArea from "../../components/InputArea";
 import { RootStackParamList } from "../../routes/StackNavigator";
-import { changeFeedback, getRecipe } from "../../services/recipe.services";
+import { addRecipeComment, changeFeedback, getRecipe } from "../../services/recipe.services";
 import {
   SearchButton,
   SearchButtonText,
@@ -45,6 +45,7 @@ export default function Recipe() {
   const [recipe, setRecipe] = useState<any>();
   const { navigate, goBack } = useNavigation<ScreenProp>();
   const [loading, setLoading] = useState(true);
+  const [loadingComment, setLoadingComment] = useState(false);
   const [comment, setComment] = useState("");
   const { id } = useRoute<screenRouteProp>().params;
   const [stars, setStars] = useState(5);
@@ -83,7 +84,23 @@ export default function Recipe() {
   };
 
   const handleSendComment = async () => {
+    setLoadingComment(true);
+    try {
+      const { data } = await addRecipeComment(id, comment);
+      Platform.OS == "android"
+        ? ToastAndroid.show(`Seu comentário foi enviado com sucesso!`, 5)
+        : Alert.alert(`Seu comentário foi enviado com sucesso!`);
+      console.log(data);
+    } catch (e: any) {
+      if (e.response.status == 401) {
+        return Platform.OS == "android"
+          ? ToastAndroid.show(`Faça o seu login para enviar comentários 😢`, 5)
+          : Alert.alert(`Faça o seu login para enviar comentários 😢`);
+      }
+    }
+    setLoadingComment(false); 
     setComment("");
+    fetchRecipe();
   };
 
   useEffect(() => {
@@ -165,15 +182,19 @@ export default function Recipe() {
               />
             </SearchContainer>
             <SearchButton onPress={handleSendComment} style={{marginLeft: 0, marginBottom: 24}}>
-              <SearchButtonText>Comentar</SearchButtonText>
+              {loadingComment ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <SearchButtonText>Enviar</SearchButtonText>
+              )}
             </SearchButton>
 
-            {recipe.comments.map((rating: any) => (
-              <CommentContainer key={rating._id}>
+            {recipe.comments.map((comments: any) => (
+              <CommentContainer key={comments._id}>
                 <InfoText>
-                  {rating.author} <CommentTime>{}</CommentTime>
+                  {comments.author} <CommentTime>{}</CommentTime>
                 </InfoText>
-                <CommentText>{rating.message}</CommentText>
+                <CommentText>{comments.message}</CommentText>
               </CommentContainer>
             ))}
           </>
