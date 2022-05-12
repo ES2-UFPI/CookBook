@@ -20,4 +20,8 @@ routes
   .route('/login')
   .post(userController.login)
 
+routes
+  .route('/getUserByName/:name')
+  .get(userController.getUsersByName)
+
 export default routes;

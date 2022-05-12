@@ -88,7 +88,7 @@ const getAllRecipes = catchAsync(
     });
   }
 );
-// "name" : {$regex : String(name), name: /^bar$/i }
+
 const getRecipesByName = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const page = Number(req.query.page) || 1;
@@ -96,7 +96,7 @@ const getRecipesByName = catchAsync(
     const name = req.params.name;
 
     const recipes = await Recipe.find({
-      name: (/^bar$/i.test(name) ? name : new RegExp(name, "i"))
+      name: /^bar$/i.test(name) ? name : new RegExp(name, "i"),
     })
       .select("-__v")
       .select("-prepMethod")
@@ -104,7 +104,7 @@ const getRecipesByName = catchAsync(
       .limit(limit);
 
     if (!recipes) {
-      return next(new AppError("Can't find recipe with that id", 404));
+      return next(new AppError("Can't find recipe with that name", 404));
     }
 
     return res.status(200).json({
@@ -132,6 +132,7 @@ const getRecipe = catchAsync(
 interface createRecipeProps extends Request {
   user: {
     _id: String;
+    name: String;
   };
 }
 
@@ -195,7 +196,7 @@ const updateRating = catchAsync(
       _id: req.params.id,
       ratings: { $elemMatch: { authorId: req.user._id } },
     });
-
+    
     if (recipe) {
       recipe = await Recipe.findOneAndUpdate(
         {
@@ -204,9 +205,6 @@ const updateRating = catchAsync(
         },
         {
           $set: { "ratings.$.stars": req.body.stars },
-        },
-        {
-          upsert: true,
         }
       );
     } else {
@@ -232,6 +230,98 @@ const updateRating = catchAsync(
   }
 );
 
+const getUserRating = catchAsync(
+  async (req: createRecipeProps, res: Response, next: NextFunction) => {
+    const recipe = await Recipe.findOne({
+      _id: req.params.id,
+      ratings: { $elemMatch: { authorId: req.user._id } },
+    }).select("ratings");
+
+    if (!recipe) {
+      return next(
+        new AppError(
+          "Can't find recipe with that id or user dont have rating",
+          404
+        )
+      );
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: { stars: recipe.ratings[0].stars },
+    });
+  }
+);
+
+const getRecipesByUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const id = req.params.id;
+
+    const recipes = await Recipe.find({
+      authorId: id,
+    })
+      .select("-__v")
+      .select("-prepMethod")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    if (!recipes) {
+      return next(new AppError("Can't find user with that id", 404));
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: recipes,
+    });
+  }
+);
+
+const postUserComments = catchAsync(
+  async (req: createRecipeProps, res: Response, next: NextFunction) => {
+    const response = await Recipe.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $push: {
+          comments: {
+            author: req.user.name,
+            authorId: req.user._id,
+            message: req.body.message,
+            createdAt: Date.now(),
+          },
+        },
+      },
+      { upsert: true }
+    );
+
+    if (!response) return next(new AppError("Failed to add comment", 404));
+
+    return res.status(200).json({
+      status: "success",
+      data: response,
+    });
+  }
+);
+
+const getTopRecipes = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const recipes = await Recipe.find({})
+      .sort({ "ratings": -1 })
+      .select("-__v")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return res.status(200).json({
+      status: "success",
+      data: recipes,
+    });
+  }
+);
+
 export {
   getAllRecipes,
   getRecipe,
@@ -240,4 +330,8 @@ export {
   deleteRecipe,
   updateRating,
   getRecipesByName,
+  getRecipesByUser,
+  getUserRating,
+  postUserComments,
+  getTopRecipes,
 };
