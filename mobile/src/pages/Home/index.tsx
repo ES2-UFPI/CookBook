@@ -15,7 +15,7 @@ type RecipeProps = {
   averageRating: number;
   comments: [];
   cookTime: number;
-  id: string;
+  _id: string;
   imgURL: string;
   name: string;
   ratings: [];
@@ -65,7 +65,7 @@ export default function Home() {
       <ContentWrapper>
         <Header
           onPressLeft={() => navigate("Login")}
-          onPressRight={() => navigate("Home")}
+          onPressRight={() => navigate("Search")}
         />
 
         {recipes4.length > 0 && (
@@ -73,7 +73,7 @@ export default function Home() {
             image_url={recipes4[recipes4.length - 1].imgURL}
             name={recipes4[recipes4.length - 1].name}
             onPress={() =>
-              navigate("Recipe", { id: recipes4[recipes4.length - 1].id })
+              navigate("Recipe", { id: recipes4[recipes4.length - 1]._id })
             }
           />
         )}
@@ -85,9 +85,10 @@ export default function Home() {
             <Carousel>
               {recipes1.map((recipe) => (
                 <CardVertical
+                  key={recipe._id}
                   image_url={recipe.imgURL}
                   name={recipe.name}
-                  onPress={() => navigate("Recipe", { id: recipe.id })}
+                  onPress={() => navigate("Recipe", { id: recipe._id })}
                 />
               ))}
             </Carousel>
@@ -101,9 +102,10 @@ export default function Home() {
             <Carousel>
               {recipes2.map((recipe) => (
                 <CardVertical
+                  key={recipe._id}
                   image_url={recipe.imgURL}
                   name={recipe.name}
-                  onPress={() => navigate("Recipe", { id: recipe.id })}
+                  onPress={() => navigate("Recipe", { id: recipe._id })}
                 />
               ))}
             </Carousel>
@@ -118,8 +120,9 @@ export default function Home() {
               {recipes3.map((recipe) => (
                 <CardVertical
                   image_url={recipe.imgURL}
+                  key={recipe._id}
                   name={recipe.name}
-                  onPress={() => navigate("Recipe", { id: recipe.id })}
+                  onPress={() => navigate("Recipe", { id: recipe._id })}
                 />
               ))}
             </Carousel>
@@ -134,8 +137,9 @@ export default function Home() {
               {recipes4.map((recipe) => (
                 <CardVertical
                   image_url={recipe.imgURL}
+                  key={recipe._id}
                   name={recipe.name}
-                  onPress={() => navigate("Recipe", { id: recipe.id })}
+                  onPress={() => navigate("Recipe", { id: recipe._id })}
                 />
               ))}
             </Carousel>

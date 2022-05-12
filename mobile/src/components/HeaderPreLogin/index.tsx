@@ -4,7 +4,11 @@ import { Feather } from '@expo/vector-icons'
 import ButtonIcon from '../ButtonIcon';
 import { useNavigation } from '@react-navigation/native';
 
-const HeaderPreLogin: React.FC = () => {
+interface HeaderPreLoginProps {
+  rightOnPress?: () => void;
+}
+
+const HeaderPreLogin = ({ rightOnPress }:HeaderPreLoginProps) => {
   const { goBack } = useNavigation();
 
   return (
@@ -13,6 +17,15 @@ const HeaderPreLogin: React.FC = () => {
         onPress={() => goBack()} 
         icon={<Feather name="chevron-left" size={24} color="#5D5FEF" />} 
       />
+
+      {
+        rightOnPress && (
+          <ButtonIcon
+            onPress={rightOnPress}
+            icon={<Feather name="filter" size={24} color="#5D5FEF" />}
+          />
+        )
+      }
       
     </Container>
   );
@@ -23,6 +36,7 @@ const Container = styled.View`
   height: 110px;
   align-items: center;
   flex-direction: row;
+  justify-content: space-between;
   padding: 0 22px;
 ` 
 
