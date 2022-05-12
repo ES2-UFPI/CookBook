@@ -10,6 +10,11 @@ export const getTopRecipes = async (page: number, limit: number = 10) => {
   return response;
 }
 
+export const getMyRecipes = async (page: number, limit: number = 100) => {
+  const response = await api.get(`/recipeByUser?page=${page}&limit=${limit}`);
+  return response;
+}
+
 export const getRecipes = async (page: number, limit: number = 10, ingredients: string = '', tags: string = '') => {
   const response = await api.get(`/recipe?page=${page}&limit=${limit}&ingredients=${ingredients}&tags=${tags}`);
   return response;
