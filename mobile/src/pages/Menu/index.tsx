@@ -50,6 +50,7 @@ export default function Menu() {
 
       <ScrollView style={{ width: "100%", marginTop: 40 }} contentContainerStyle={{paddingHorizontal: 20}}>
         <Option title="Cadastrar receitas" onPress={() => navigate("RegisterRecipe")} />
+        <Option title="Minhas receitas" onPress={() => navigate("MyRecipes")} />
         <Option title="Sair" exit onPress={() => {
           logOff();
           goBack();
