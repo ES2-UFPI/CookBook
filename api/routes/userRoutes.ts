@@ -24,4 +24,8 @@ routes
   .route('/getUserByName/:name')
   .get(userController.getUsersByName)
 
+routes
+  .route('/me')
+  .get(authController.protect, userController.getLoggedUser)
+
 export default routes;
