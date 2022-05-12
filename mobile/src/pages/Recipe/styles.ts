@@ -52,7 +52,7 @@ export const InfoText = styled.Text`
 export const InfoTextMinor = styled.Text`
   font-family: ${({ theme }) => theme.fonts.medium};
   color: ${({ theme }) => theme.colors.text};
-  font-size: 1px;
+  font-size: 8px;
 ` 
 
 export const Subtitle = styled.Text`
@@ -84,4 +84,34 @@ export const Text = styled.Text`
   text-align: justify;
   margin-bottom: 4px;
   padding: 0 5px;
+`
+
+export const StarsContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 24px;
+  padding: 0 5px;
+`
+
+export const CommentContainer = styled.View`
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  border-bottom-left-radius: 0;
+  background-color: ${({ theme }) => theme.colors.white};
+`
+
+export const CommentText = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 14px;
+  padding: 0 10px;
+`
+
+export const CommentTime = styled.Text`
+  font-family: ${({ theme }) => theme.fonts.regular};
+  color: ${({ theme }) => theme.colors.gray};
+  font-size: 11px;
 `
